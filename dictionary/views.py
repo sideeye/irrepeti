@@ -9,7 +9,11 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 import requests
 import json
-from ya_settings import TOKEN_DICT, URL_DICT
+import os
+
+
+URL_DICT = 'https://dictionary.yandex.net/api/v1/dicservice.json/lookup'
+TOKEN_DICT = os.environ['TOKEN_DICT']
 
 
 class UserViewSet(viewsets.ModelViewSet):
