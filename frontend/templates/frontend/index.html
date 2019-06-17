@@ -10,10 +10,16 @@
   <title>Django DRF React Irrepeti</title>
 </head>
 <body>
+  <p><a href={% url 'login' %}>Login</a></p>        
+  <p><a href={% url 'logout' %}>Logout</a></p> 
   <section class="section">
-    <div class="container">
-          <div id="app"><!-- React --></div>
-    </div>
+    {% if user.is_authenticated %}
+      <div class="container">
+        <div id="app"><!-- React --></div>
+      </div>
+    {% else %}
+      Please login to see this page.
+    {% endif %}
   </section>
 </body>
 
