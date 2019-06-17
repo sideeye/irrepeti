@@ -1,28 +1,42 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import key from "weak-key";
+import { Link } from 'react-router-dom';
 
 
 const DictionaryTable = ({ dictionary }) => {
+  const thead = () => (
+    <thead key={key({ thead: '' })}>
+      <tr>
+        <th>Text</th>
+        <th>Translation</th>
+      </tr>
+    </thead> 
+  )
+
+  const tbody = () => (
+    dictionary.map(text => {
+    const frontUrl= new URL(text.url).pathname.replace("/api", "");
+    return (
+      <tbody key={key(text)}>
+        <tr>
+          <td>
+            <Link to = {frontUrl}>{text.text}</Link>
+          </td>
+          <td>
+            {text.translations.map(t => t.translation).join(', ')}
+          </td>
+        </tr>
+      </tbody>
+      )
+    })
+  );
+
   return (
     <div>
       <table className="table is-fullwidth is-striped is-hoverable ">
-        <thead>
-          <tr>
-            <th key={key({ Text: '' })}>Text</th>
-            <th key={key({ Translations: '' })}>Translation</th>
-          </tr>
-        </thead>
-        <tbody>
-          {dictionary.map(text => (
-            <tr key={key(text)}>
-              <td>{text.text}</td>
-              <td>
-                {text.translations.map(t => t.translation).join(', ')}
-              </td>
-            </tr>
-          ))}
-        </tbody>
+        {thead()}      
+        {tbody()}
       </table>
     </div>
   );

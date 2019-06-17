@@ -11,6 +11,7 @@ export default class Main extends Component {
   state = {
     dictionary: [{text:'', translations: []}],
     endpoint: "api/texts/",
+    loaded: false,
   };
   
   componentDidMount() {
@@ -26,10 +27,9 @@ export default class Main extends Component {
   render() {
     return (
       <div>
-      <h2>Welcome to Dict!</h2>
         <div>
           <Form onSave={this.fetchDictionary} endpoint={this.state.endpoint} />
-          <DictionaryTable dictionary={this.state.dictionary} />
+          {this.state.loaded ? <DictionaryTable dictionary={this.state.dictionary}/> : null}
         </div>
       </div>
     )
