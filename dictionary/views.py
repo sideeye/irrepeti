@@ -50,6 +50,13 @@ class TextViewSet(viewsets.ModelViewSet):
         translation = TranslationSerializer(data=translation_data, many=True)
         translation.is_valid(raise_exception=True)
         translation.save(original=original)
+    
+    def perform_update(self, serializer):
+        translation_data = self.request.data.get('translationsSelected')
+        translation = TranslationSerializer(data=translation_data, many=True)
+        translation.is_valid(raise_exception=True)
+        original = self.get_object()
+        translation.save(original=original)
 
 
 class TranslationViewSet(viewsets.ModelViewSet):
@@ -76,11 +83,16 @@ class TranslationViewSet(viewsets.ModelViewSet):
 @api_view()
 def ya_translation_view(request):
     text = request.query_params.get('text')
-    try:
-        text_existed = Text.objects.get(text=text)
-        text_existed = TextSerializer(text_existed, context={'request': request}).data
+    force_update = request.query_params.get('force_update')
+
+    text_existed = Text.objects.filter(text=text)
+    if text_existed and not force_update:
+        text_existed = TextSerializer(text_existed.get(), context={'request': request}).data
         text_existed = json.dumps(text_existed)
-    except Text.DoesNotExist:
+        textExists = True
+        response = {"translations": "", 'textExists': textExists, 'text': text_existed}
+        return Response(response) 
+    else:
         textExists = False
         params = {
             'key': TOKEN_DICT,
@@ -89,14 +101,10 @@ def ya_translation_view(request):
         }
         article = requests.get(URL_DICT, params).json().get('def')[0]['tr']
         translations = []
+
         for tr in article:
             translations.append({'translation': tr['text'], 'checked': False})
         translations = json.dumps(translations)
-    else:
-        textExists = True
-        print(text_existed)
-        response = {"translations": "", 'textExists': textExists, 'text': text_existed}
-        return Response(response) 
 
-    response = {"translations": f"{translations}", 'textExists': textExists}
-    return Response(response)
+        response = {"translations": f"{translations}", 'textExists': textExists}
+        return Response(response)
