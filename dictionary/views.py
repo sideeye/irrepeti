@@ -53,10 +53,13 @@ class TextViewSet(viewsets.ModelViewSet):
     
     def perform_update(self, serializer):
         translation_data = self.request.data.get('translationsSelected')
-        translation = TranslationSerializer(data=translation_data, many=True)
-        translation.is_valid(raise_exception=True)
-        original = self.get_object()
-        translation.save(original=original)
+        if translation_data:
+            translation = TranslationSerializer(data=translation_data, many=True)
+            translation.is_valid(raise_exception=True)
+            original = self.get_object()
+            translation.save(original=original)
+        else:
+            serializer.save()
 
 
 class TranslationViewSet(viewsets.ModelViewSet):

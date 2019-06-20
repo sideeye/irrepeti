@@ -22,4 +22,4 @@ class TextSerializer(serializers.HyperlinkedModelSerializer):
     translations = TranslationSerializer(many=True, read_only=True)
     class Meta:
         model = Text
-        fields = ('pk', 'url',  'text', 'translations', 'user')
+        fields = ('pk', 'url', 'user', 'text', 'translations', 'repeat_level')
