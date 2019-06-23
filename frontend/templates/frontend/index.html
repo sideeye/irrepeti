@@ -9,9 +9,11 @@
   
   <title>Django DRF React Irrepeti</title>
 </head>
+
 <body>
-  <p><a href={% url 'login' %}>Login</a></p>        
-  <p><a href={% url 'logout' %}>Logout</a></p> 
+  <p><a href={% url 'login' %}>Login</a></p>
+  <p><a href={% url 'logout' %}>Logout</a></p>
+  <p><a href="/repetition">Repeat</a></p>
   <section class="section">
     {% if user.is_authenticated %}
       <div class="container">

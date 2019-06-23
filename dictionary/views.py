@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User, Group
 from django.views import View
+from django.utils.timezone import now, timedelta
 from rest_framework import generics, viewsets, serializers, permissions, status
 from .models import Text, Translation
 from .serializers import (TextSerializer, TranslationSerializer,
@@ -14,6 +15,7 @@ import os
 
 URL_DICT = 'https://dictionary.yandex.net/api/v1/dicservice.json/lookup'
 TOKEN_DICT = os.environ['TOKEN_DICT']
+FIBOS = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377]
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -52,14 +54,43 @@ class TextViewSet(viewsets.ModelViewSet):
         translation.save(original=original)
     
     def perform_update(self, serializer):
-        translation_data = self.request.data.get('translationsSelected')
+        data = self.request.data
+        translation_data = data.get('translationsSelected')
         if translation_data:
             translation = TranslationSerializer(data=translation_data, many=True)
             translation.is_valid(raise_exception=True)
             original = self.get_object()
             translation.save(original=original)
         else:
-            serializer.save()
+            repeat_level = int(data.get('repeat_level'))
+            
+            # Max interval equals 377
+            if repeat_level >= len(FIBOS):
+                repeat_level = len(FIBOS) - 1
+            elif repeat_level < 0:
+                repeat_level = 0
+            repeat_next = now().date() + timedelta(days=FIBOS[repeat_level])
+
+            serializer.save(repeat_next=repeat_next, repeat_level=repeat_level)
+
+
+class TextToRepeatViewSet(viewsets.ModelViewSet):
+    serializer_class = TextSerializer
+    
+    def get_queryset(self):
+        queryset = self.request.user.texts.filter(repeat_next__lte=now().date())
+        return queryset
+    
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+
+        if self.action == 'list':
+            permission_classes = [permissions.IsAuthenticated]
+        else:
+            permission_classes = [IsOwnerText]
+        return [permission() for permission in permission_classes]
 
 
 class TranslationViewSet(viewsets.ModelViewSet):

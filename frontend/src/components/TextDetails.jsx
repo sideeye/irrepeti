@@ -248,7 +248,8 @@ class Details extends Component {
         body: JSON.stringify(note),
         headers: new Headers({ "Content-Type": "application/json", "X-CSRFToken": csrftoken }),
       };
-
+      
+      //TODO: fix propmises (reset and fetchText)?
       fetch(this.state.endpointText, conf)
       .then(response => console.log('response=', response))
       .then(this.reset).then(this.fetchText);

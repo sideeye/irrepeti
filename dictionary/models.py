@@ -9,11 +9,7 @@ class Text(models.Model):
     text = models.CharField(max_length = 200)
     repeat_last = models.DateField(auto_now=True)
     repeat_level = models.IntegerField(default=0)
-
-    @property
-    def repeat_next(self):
-        fibos = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377]
-        return self.repeat_last + timedelta(fibos[self.repeat_level])
+    repeat_next = models.DateField(auto_now_add=True)
 
     class Meta:
         unique_together = ('user', 'text',)
